@@ -47,3 +47,50 @@ btn.addEventListener("click", async () => {
 });
 
 render();
+
+// ── Manual paste ─────────────────────────────────────────────────────────────
+
+const recipeText   = document.getElementById("recipeText");
+const archiveBtn   = document.getElementById("archiveBtn");
+const clearBtn     = document.getElementById("clearBtn");
+const manualStatus = document.getElementById("manualStatus");
+
+function setManualStatus(text, type) {
+  manualStatus.textContent = text;
+  manualStatus.className = type || "";
+}
+
+archiveBtn.addEventListener("click", async () => {
+  const text = recipeText.value.trim();
+  if (!text) {
+    setManualStatus("Paste a recipe first.", "error");
+    return;
+  }
+
+  archiveBtn.disabled = true;
+  setManualStatus("Archiving…", "loading");
+
+  const payload = {
+    chat_title: "Manual entry",
+    messages: [{ role: "user", content: text }],
+  };
+
+  browser.runtime.sendMessage(
+    { type: "PROCESS_FORMULA", payload },
+    ({ ok, data } = {}) => {
+      archiveBtn.disabled = false;
+      if (!data) {
+        setManualStatus("No response from backend.", "error");
+      } else if (ok && data.status === "ok") {
+        setManualStatus(`Saved: ${data.formula_name} (${data.version})`, "success");
+      } else {
+        setManualStatus(data.detail || "Archive failed.", "error");
+      }
+    }
+  );
+});
+
+clearBtn.addEventListener("click", () => {
+  recipeText.value = "";
+  setManualStatus("");
+});

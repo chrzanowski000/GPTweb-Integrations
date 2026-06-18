@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: system-ui, sans-serif;
-      min-width: 220px;
+      min-width: 320px;
       padding: 16px;
       background: #1a1a1a;
       color: #f0f0f0;
@@ -15,6 +15,14 @@
       margin: 0 0 12px;
       font-size: 15px;
       color: #e0e0e0;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #aaa;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
     button {
       width: 100%;
@@ -25,6 +33,10 @@
       font-size: 14px;
       font-weight: 600;
       transition: background 0.2s;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     #toggleBtn.monitor {
       background: #2ecc71;
@@ -40,12 +52,69 @@
       color: #aaa;
       text-align: center;
     }
+    .divider {
+      border: none;
+      border-top: 1px solid #333;
+      margin: 16px 0;
+    }
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      height: 140px;
+      background: #2a2a2a;
+      color: #f0f0f0;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+    textarea::placeholder {
+      color: #666;
+    }
+    #archiveBtn {
+      background: #3498db;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    #archiveBtn:hover:not(:disabled) {
+      background: #2980b9;
+    }
+    #clearBtn {
+      background: #333;
+      color: #ccc;
+    }
+    #clearBtn:hover:not(:disabled) {
+      background: #3d3d3d;
+    }
+    #manualStatus {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: center;
+      min-height: 16px;
+    }
+    #manualStatus.success { color: #2ecc71; }
+    #manualStatus.error   { color: #e74c3c; }
+    #manualStatus.loading { color: #aaa; }
   </style>
 </head>
 <body>
   <h2>Formula Archiver</h2>
+
+  <h3>Auto-detect</h3>
   <button id="toggleBtn" class="monitor">Monitor This Tab</button>
   <p id="status">Loading…</p>
+
+  <hr class="divider" />
+
+  <h3>Manual Paste</h3>
+  <textarea id="recipeText" placeholder="Paste recipe here…"></textarea>
+  <button id="archiveBtn">Archive Formula</button>
+  <button id="clearBtn">Clear</button>
+  <p id="manualStatus"></p>
+
   <script src="popup.js"></script>
 </body>
 </html>
