@@ -30,6 +30,41 @@ class StatusViewModel(private val repo: SettingsRepository) : ViewModel() {
     private val _state = MutableStateFlow<UiState>(UiState.Idle)
     val state: StateFlow<UiState> = _state
 
+    fun resetState() { _state.value = UiState.Idle }
+
+    fun processManual(text: String) {
+        viewModelScope.launch {
+            if (text.isBlank()) {
+                _state.value = UiState.Error("Nothing to archive — paste a recipe first.")
+                return@launch
+            }
+            _state.value = UiState.Loading
+            val settings = repo.settingsFlow.first()
+            val request = ArchiveRequest(
+                chatTitle = "Manual entry",
+                source = "android_manual",
+                messages = listOf(Message(role = "user", content = text))
+            )
+            try {
+                val api = ApiClient.getApi(settings.backendUrl)
+                val response = api.archive(request)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null) _state.value = UiState.Success(body)
+                    else _state.value = UiState.Error("Empty response from backend")
+                } else {
+                    val errorJson = response.errorBody()?.string() ?: ""
+                    val detail = runCatching {
+                        ApiClient.gson.fromJson(errorJson, ErrorBody::class.java).detail
+                    }.getOrElse { "HTTP ${response.code()}" }
+                    _state.value = UiState.Error(detail)
+                }
+            } catch (e: Exception) {
+                _state.value = UiState.Error(e.message ?: "Network error")
+            }
+        }
+    }
+
     fun process(sharedText: String) {
         viewModelScope.launch {
             _state.value = UiState.Loading

@@ -77,7 +77,7 @@ class SettingsViewModel(private val repo: SettingsRepository) : ViewModel() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel) {
+fun SettingsScreen(viewModel: SettingsViewModel, modifier: Modifier = Modifier) {
     val settings by viewModel.settings.collectAsState()
     val saved by viewModel.saved.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
@@ -101,6 +101,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 
     MaterialTheme {
         Scaffold(
+            modifier = modifier,
             topBar = { TopAppBar(title = { Text("Settings") }) }
         ) { padding ->
             Column(
