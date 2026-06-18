@@ -1,6 +1,6 @@
 "use strict";
 
-const BACKEND_URL = "http://localhost:8000/process_formula";
+const BACKEND_URL = "http://localhost:8000/archive";
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message && message.type === "GET_TAB_ID") {
@@ -14,7 +14,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(message.payload),
+      body: JSON.stringify({ ...message.payload, source: "firefox-extension" }),
     })
       .then((r) => r.json().then((data) => ({ ok: r.ok, data })))
       .then(({ ok, data }) => sendResponse({ ok, data }))

@@ -1,3 +1,4 @@
+import logging
 import os
 
 import httpx
@@ -29,8 +30,9 @@ class Message(BaseModel):
     content: str
 
 
-class ProcessFormulaRequest(BaseModel):
+class ArchiveRequest(BaseModel):
     chat_title: str
+    source: str = ""
     messages: list[Message]
 
 
@@ -60,8 +62,9 @@ def health() -> dict:
     }
 
 
-@app.post("/process_formula")
-def process_formula(request: ProcessFormulaRequest) -> dict:
+@app.post("/archive")
+def archive(request: ArchiveRequest) -> dict:
+    logging.info("archive request source=%s", request.source)
     # Build conversation text
     lines = [
         f"{msg.role.capitalize()}: {msg.content}" for msg in request.messages
