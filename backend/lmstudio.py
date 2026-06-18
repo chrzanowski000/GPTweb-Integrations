@@ -25,7 +25,8 @@ Schema:
   "ingredients": [
     {
       "ingredient": "",
-      "pct": 0
+      "pct": 0,
+      "concentration": 10
     }
   ]
 }
@@ -33,6 +34,7 @@ Schema:
 Rules:
 - description: one sentence summarising the character or intent of the formula (e.g. "Woody chypre with a floral heart"). Leave empty string if nothing can be inferred.
 - version: use "1" if not explicitly stated.
+- concentration: stock solution strength as a number (100 = neat/undiluted, 10 = 10% dilution, 1 = 1%, 0.1 = 0.1%, 0.01 = 0.01%). Priority: (1) if the conversation explicitly states a dilution for a specific ingredient (e.g. "10% solution", "diluted to 1%", "in IPM"), use that value for that ingredient. (2) For all remaining ingredients where no dilution is mentioned, if the formula percentages sum to approximately 100%, use 100. (3) Otherwise default to 10.
 
 If no formula is present, return:
 {"is_formula": false, "formula_name": "", "version": "", "description": "", "ingredients": []}"""

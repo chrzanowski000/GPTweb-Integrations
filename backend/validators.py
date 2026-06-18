@@ -4,6 +4,7 @@ from pydantic import BaseModel, field_validator
 class Ingredient(BaseModel):
     ingredient: str
     pct: float
+    concentration: float = 10.0  # stock solution concentration: 100, 10, 1, 0.1, 0.01
 
 
 class Formula(BaseModel):

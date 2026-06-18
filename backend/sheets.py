@@ -18,7 +18,8 @@ SCOPES = [
 SPREADSHEET_NAME = os.getenv("SPREADSHEET_NAME", "GPTweb-integration-test")
 INDEX_SHEET_NAME = "Index"
 INDEX_HEADER = ["Timestamp", "Formula Name", "Version", "Description", "Sheet Name"]
-FORMULA_HEADER = ["Ingredient", "Percent"]
+FORMULA_HEADER = ["Ingredient", "Concentration [%]", "Solution Weight [g]", "Pure Material [%]", "Relative %"]
+TARGET_WEIGHT_G = 5.0
 
 _client: gspread.Client | None = None
 
@@ -108,10 +109,51 @@ def _create_formula_worksheet(
 ) -> str:
     """Create a new worksheet for this formula and populate it. Returns the final sheet name."""
     sheet_name = _unique_sheet_name(spreadsheet, sheet_name)
-    ws = spreadsheet.add_worksheet(title=sheet_name, rows=len(ingredients) + 2, cols=2)
-    rows = [FORMULA_HEADER] + [[item["ingredient"], item["pct"]] for item in ingredients]
-    ws.update(rows, "A1")
-    ws.format("A1:B1", {"textFormat": {"bold": True}})
+
+    total_pct = sum(item["pct"] for item in ingredients) or 1.0
+
+    data_rows = []
+    sum_solution_g = 0.0
+    sum_pure_g = 0.0
+
+    for item in ingredients:
+        pct = item["pct"]
+        conc = item.get("concentration", 10.0) or 10.0
+        pure_g = round(pct / 100 * TARGET_WEIGHT_G, 4)
+        solution_g = round(pure_g / (conc / 100), 4)
+        relative_pct = round(pct / total_pct * 100, 2)
+        sum_solution_g += solution_g
+        sum_pure_g += pure_g
+        data_rows.append([item["ingredient"], conc, solution_g, pct, relative_pct])
+
+    alcohol_g = round(TARGET_WEIGHT_G - sum_solution_g, 4)
+    formula_conc_pct = round(sum_pure_g / TARGET_WEIGHT_G * 100, 2)
+
+    summary_rows = [
+        [],
+        ["Alcohol [g]", "", round(alcohol_g, 4), "", ""],
+        ["Total Solution [g]", "", round(sum_solution_g, 4), "", ""],
+        ["Total Pure Material [g]", "", "", round(sum_pure_g, 4), ""],
+        ["Target Weight [g]", "", TARGET_WEIGHT_G, "", ""],
+        ["Formula Concentration [%]", "", "", formula_conc_pct, ""],
+    ]
+
+    all_rows = [FORMULA_HEADER] + data_rows + summary_rows
+    total_rows = len(all_rows) + 2
+
+    ws = spreadsheet.add_worksheet(title=sheet_name, rows=total_rows, cols=5)
+    ws.update(all_rows, "A1")
+
+    # Bold header row
+    ws.format("A1:E1", {"textFormat": {"bold": True}})
+    # Bold summary labels in column A
+    summary_start = len(data_rows) + 3  # header + data + blank row + 1-based
+    summary_end = summary_start + len(summary_rows) - 2  # exclude the blank
+    ws.format(
+        f"A{summary_start}:A{summary_end}",
+        {"textFormat": {"bold": True}},
+    )
+
     return sheet_name
 
 
@@ -147,8 +189,8 @@ if __name__ == "__main__":
         version="1",
         description="A simple woody test formula.",
         ingredients=[
-            {"ingredient": "Iso E Super", "pct": 50},
-            {"ingredient": "Hedione", "pct": 30},
+            {"ingredient": "Iso E Super", "pct": 50, "concentration": 10},
+            {"ingredient": "Hedione", "pct": 30, "concentration": 10},
         ],
     )
     print(f"Wrote {rows_written} ingredient row(s) successfully.")

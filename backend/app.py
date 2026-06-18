@@ -85,7 +85,10 @@ def process_formula(request: ProcessFormulaRequest) -> dict:
         raise HTTPException(status_code=422, detail=f"Formula validation failed: {exc}") from exc
 
     # Write to Google Sheets
-    ingredients = [{"ingredient": ing.ingredient, "pct": ing.pct} for ing in formula.ingredients]
+    ingredients = [
+        {"ingredient": ing.ingredient, "pct": ing.pct, "concentration": ing.concentration}
+        for ing in formula.ingredients
+    ]
     try:
         rows_written = append_formula_rows(
             formula.formula_name,
