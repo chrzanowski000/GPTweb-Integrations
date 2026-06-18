@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formula Archiver</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      min-width: 220px;
+      padding: 16px;
+      background: #1a1a1a;
+      color: #f0f0f0;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      color: #e0e0e0;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    #toggleBtn.monitor {
+      background: #2ecc71;
+      color: #fff;
+    }
+    #toggleBtn.stop {
+      background: #e74c3c;
+      color: #fff;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>Formula Archiver</h2>
+  <button id="toggleBtn" class="monitor">Monitor This Tab</button>
+  <p id="status">Loading…</p>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "Formula Archiver",
+  "version": "1.0",
+  "description": "Detects #SAVE_FORMULA in ChatGPT and archives fragrance formulas to Google Sheets via a local backend.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "https://chatgpt.com/*",
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Formula Archiver"
+  }
+}
