@@ -98,6 +98,7 @@ def archive(request: ArchiveRequest) -> dict:
             formula.version,
             ingredients,
             description=formula.description,
+            target_weight_g=formula.target_weight_g,
         )
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Google Sheets write failed: {exc}") from exc

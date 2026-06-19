@@ -106,6 +106,7 @@ def _create_formula_worksheet(
     spreadsheet: gspread.Spreadsheet,
     sheet_name: str,
     ingredients: list[dict],
+    target_weight_g: float = TARGET_WEIGHT_G,
 ) -> str:
     """Create a new worksheet for this formula and populate it. Returns the final sheet name."""
     sheet_name = _unique_sheet_name(spreadsheet, sheet_name)
@@ -119,22 +120,22 @@ def _create_formula_worksheet(
     for item in ingredients:
         pct = item["pct"]
         conc = item.get("concentration", 10.0) or 10.0
-        pure_g = round(pct / 100 * TARGET_WEIGHT_G, 4)
+        pure_g = round(pct / 100 * target_weight_g, 4)
         solution_g = round(pure_g / (conc / 100), 4)
         relative_pct = round(pct / total_pct * 100, 2)
         sum_solution_g += solution_g
         sum_pure_g += pure_g
         data_rows.append([item["ingredient"], conc, solution_g, pct, relative_pct])
 
-    alcohol_g = round(TARGET_WEIGHT_G - sum_solution_g, 4)
-    formula_conc_pct = round(sum_pure_g / TARGET_WEIGHT_G * 100, 2)
+    alcohol_g = round(target_weight_g - sum_solution_g, 4)
+    formula_conc_pct = round(sum_pure_g / target_weight_g * 100, 2)
 
     summary_rows = [
         [],
         ["Alcohol [g]", "", round(alcohol_g, 4), "", ""],
         ["Total Solution [g]", "", round(sum_solution_g, 4), "", ""],
         ["Total Pure Material [g]", "", "", round(sum_pure_g, 4), ""],
-        ["Target Weight [g]", "", TARGET_WEIGHT_G, "", ""],
+        ["Target Weight [g]", "", target_weight_g, "", ""],
         ["Formula Concentration [%]", "", "", formula_conc_pct, ""],
     ]
 
@@ -162,6 +163,7 @@ def append_formula_rows(
     version: str,
     ingredients: list[dict],
     description: str = "",
+    target_weight_g: float = TARGET_WEIGHT_G,
 ) -> int:
     """Write a new formula worksheet and update the Index.
 
@@ -172,7 +174,7 @@ def append_formula_rows(
     index_ws = _get_or_create_index(spreadsheet)
 
     sheet_name = _safe_sheet_name(formula_name, version)
-    _create_formula_worksheet(spreadsheet, sheet_name, ingredients)
+    _create_formula_worksheet(spreadsheet, sheet_name, ingredients, target_weight_g=target_weight_g)
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     index_ws.append_row(

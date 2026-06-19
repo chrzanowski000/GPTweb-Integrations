@@ -122,6 +122,27 @@ OkHttp logs the full request and response body — useful for debugging what was
 
 ---
 
+## Manual Archive Tab (no trigger phrase)
+
+Open the app from the launcher. The default tab is **Archive**.
+
+1. Paste any recipe text into the text field — no `#SAVE_FORMULA` needed
+2. Tap **Archive Formula**
+3. Spinner → success card showing formula name, version, rows written
+4. Tap **Clear** to reset the field and result
+
+This sends `source: "android_manual"` to the backend and skips the trigger check entirely.
+
+To test via adb, use the launcher intent instead of the share intent:
+
+```bash
+adb shell am start -n com.formulaarchiver/.MainActivity
+```
+
+Then interact with the Archive tab directly on the emulator screen.
+
+---
+
 ## Real Device Testing
 
 1. Enable **Developer Options** on the phone: Settings → About Phone → tap **Build Number** 7 times

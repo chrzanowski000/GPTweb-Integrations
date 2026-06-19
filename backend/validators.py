@@ -11,6 +11,7 @@ class Formula(BaseModel):
     formula_name: str
     version: str = "1"
     description: str = ""
+    target_weight_g: float = 5.0
     ingredients: list[Ingredient]
 
     @field_validator("ingredients")

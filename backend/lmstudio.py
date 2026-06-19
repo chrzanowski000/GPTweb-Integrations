@@ -22,6 +22,7 @@ Schema:
   "formula_name": "",
   "version": "",
   "description": "",
+  "target_weight_g": 5.0,
   "ingredients": [
     {
       "ingredient": "",
@@ -34,10 +35,18 @@ Schema:
 Rules:
 - description: one sentence summarising the character or intent of the formula (e.g. "Woody chypre with a floral heart"). Leave empty string if nothing can be inferred.
 - version: use "1" if not explicitly stated.
+- target_weight_g: extract the total batch/portion size in grams if explicitly stated (e.g. "Fragrance Portion (1.0 g)" → 1.0, "make 10g" → 10.0). Default: 5.0.
 - concentration: stock solution strength as a number (100 = neat/undiluted, 10 = 10% dilution, 1 = 1%, 0.1 = 0.1%, 0.01 = 0.01%). Priority: (1) if the conversation explicitly states a dilution for a specific ingredient (e.g. "10% solution", "diluted to 1%", "in IPM"), use that value for that ingredient. (2) For all remaining ingredients where no dilution is mentioned, if the formula percentages sum to approximately 100%, use 100. (3) Otherwise default to 10.
+- pct: Two cases:
+  CASE A — percentage-based formula (ingredients listed with % values that roughly sum to 100): use those percentages directly.
+  CASE B — weight-based formula (ingredients listed with solution weights in grams and a stock concentration, e.g. "Cypriol | 10% | 0.300 g"): compute as follows:
+    1. pure_i = weight_i × (concentration_i / 100)
+    2. total_pure = sum of all pure_i
+    3. pct_i = round(pure_i / target_weight_g × 100, 4)
+  Do NOT use the concentration value as pct. Do NOT leave pct at 0.
 
 If no formula is present, return:
-{"is_formula": false, "formula_name": "", "version": "", "description": "", "ingredients": []}"""
+{"is_formula": false, "formula_name": "", "version": "", "description": "", "target_weight_g": 5.0, "ingredients": []}"""
 
 
 def _strip_code_fences(text: str) -> str:
